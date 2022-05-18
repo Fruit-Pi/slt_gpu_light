@@ -16,6 +16,8 @@
 
 // OpenGL ES 2.0 code
 
+#include <gbm.h>
+
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLES2/gl2.h>
@@ -660,8 +662,17 @@ EGLDisplay initEGLContex()
 
     EGLDisplay dpy;
 
+    int drm_fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+    struct gbm_device *gbm_dev = gbm_create_device(drm_fd);
+
+    static PFNEGLGETPLATFORMDISPLAYEXTPROC get_platform_display = NULL;
+
+    get_platform_display = (PFNEGLGETPLATFORMDISPLAYEXTPROC)eglGetProcAddress("eglGetPlatformDisplayEXT");
+
+    dpy = get_platform_display(EGL_PLATFORM_GBM_KHR, (void*) gbm_dev, NULL);
+
     checkEglError("<init>");
-    dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    //dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     checkEglError("eglGetDisplay");
     if (dpy == EGL_NO_DISPLAY) {
         printf("eglGetDisplay returned EGL_NO_DISPLAY.\n");
@@ -669,9 +680,9 @@ EGLDisplay initEGLContex()
     }
     display = dpy;
 
-    returnValue = eglInitialize(dpy, &majorVersion, &minorVersion);
+    returnValue = eglInitialize(dpy, NULL, NULL);//&majorVersion, &minorVersion);
     checkEglError("eglInitialize", returnValue);
-    fprintf(stderr, "EGL version %d.%d\n", majorVersion, minorVersion);
+    //fprintf(stderr, "EGL version %d.%d\n", majorVersion, minorVersion);
     if (returnValue != EGL_TRUE) {
         printf("eglInitialize failed\n");
         return 0;
@@ -1149,7 +1160,7 @@ int slt_gpu_light_init(void)
     struct timeval tpend_begin, tpend_end;
     float usec_init = 0;
     gettimeofday(&tpend_begin, NULL);
-    printf("rk-debug[%s %d] slt_gpu_light v4\n",__FUNCTION__,__LINE__);
+    printf("rk-debug[%s %d] slt_gpu_light v5\n",__FUNCTION__,__LINE__);
 
     //初始化egl
     dpy = initEGLContex();

@@ -28,6 +28,6 @@ target_link_libraries(slt_gpu_light sltgpulight)
 
 install(TARGETS slt_gpu_light DESTINATION sbin)
 install(PROGRAMS 02gpu DESTINATION lib/pm-utils/sleep.d)
-install(PROGRAMS S51gpu DESTINATION ../etc/init.d)
+install(PROGRAMS S02gpu DESTINATION ../etc/init.d)
 install(TARGETS sltgpulight DESTINATION lib)
 install(DIRECTORY gpu_data_light DESTINATION lib/slt)
